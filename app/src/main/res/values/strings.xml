@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MiniPaint</string>
+    
+    <string name="paint_view_description">Simple line drawing tool</string>
+</resources>
