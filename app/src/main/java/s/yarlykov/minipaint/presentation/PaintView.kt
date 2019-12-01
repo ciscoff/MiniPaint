@@ -40,7 +40,7 @@ class PaintView(context: Context) : View(context) {
 
         // Смягчить по краям
         isAntiAlias = true
-        // Уменьшить оследствия искажения цвета на "дешевых" девайсах
+        // Уменьшить последствия искажения цвета на "дешевых" девайсах
         isDither = true
         style = Paint.Style.STROKE // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
@@ -109,14 +109,16 @@ class PaintView(context: Context) : View(context) {
         val millsCurrent = System.currentTimeMillis()
 
         if(millsCurrent - millPrev <= DOUBLE_CLICK_INTERVAL) {
-            clearCache()
+            resetAll()
         }
 
         millPrev = millsCurrent
         path.reset()
     }
 
-    private fun clearCache() {
+    fun getBitmap() : Bitmap = cacheBitmap
+
+    fun resetAll() {
         motionTouchEventX = 0f
         motionTouchEventY = 0f
         currentX = 0f
