@@ -2,4 +2,7 @@
     <string name="app_name">MiniPaint</string>
     
     <string name="paint_view_description">Simple line drawing tool</string>
+
+    <string name="menu_clear">Clear</string>
+    <string name="menu_share">Share</string>
 </resources>
