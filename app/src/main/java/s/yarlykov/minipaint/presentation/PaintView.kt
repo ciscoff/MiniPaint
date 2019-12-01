@@ -16,13 +16,17 @@ private const val DOUBLE_CLICK_INTERVAL = 200L
 
 class PaintView(context: Context) : View(context) {
 
-    lateinit var cacheBitmap: Bitmap
-    lateinit var cacheCanvas: Canvas
+    private lateinit var cacheBitmap: Bitmap
+    private lateinit var cacheCanvas: Canvas
 
     private val backgroundColor = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
     private val drawColor = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
     private var millPrev = System.currentTimeMillis()
-    private var path = Path()
+
+    // Accumulative Path
+    private val accPath = Path()
+    // Current Path
+    private var curPath = Path()
 
     // Расстояние в рх. Если палец сместился на это расстояние, то считается как скролл (или move)
     private val touchTolerance = ViewConfiguration.get(context).scaledTouchSlop
@@ -35,7 +39,7 @@ class PaintView(context: Context) : View(context) {
     private var currentX = 0f
     private var currentY = 0f
 
-    val paint = Paint().apply {
+    private val paint = Paint().apply {
         color = drawColor
 
         // Смягчить по краям
@@ -46,6 +50,28 @@ class PaintView(context: Context) : View(context) {
         strokeJoin = Paint.Join.ROUND // default: MITER
         strokeCap = Paint.Cap.ROUND // default: BUTT
         strokeWidth = STROKE_WIDTH // default: Hairline-width (really thin)
+    }
+
+    init {
+        id = System.currentTimeMillis().toInt()
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        // Чтобы не было утечки памяти, удалить старую битмапу перед созданием новой
+        if (::cacheBitmap.isInitialized) cacheBitmap.recycle()
+
+        cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        cacheCanvas = Canvas(cacheBitmap)
+        cacheCanvas.drawColor(backgroundColor)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        cacheCanvas.drawPath(accPath, paint)
+        cacheCanvas.drawPath(curPath, paint)
+        canvas.drawBitmap(cacheBitmap, 0f, 0f, null)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -61,26 +87,9 @@ class PaintView(context: Context) : View(context) {
         return true
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-
-        // Чтобы не было утечки памяти, удалить старую битмапу перед созданием новой
-        if (::cacheBitmap.isInitialized) cacheBitmap.recycle()
-
-        cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        cacheCanvas = Canvas(cacheBitmap)
-
-        cacheCanvas.drawColor(backgroundColor)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        canvas?.drawBitmap(cacheBitmap, 0f, 0f, null)
-    }
-
     private fun touchStart() {
-        path.reset()
-        path.moveTo(motionTouchEventX, motionTouchEventY)
+        curPath.reset()
+        curPath.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
         currentY = motionTouchEventY
     }
@@ -94,13 +103,12 @@ class PaintView(context: Context) : View(context) {
             // Это квадратичная кривая бизье от предудыщего положения пальца до текущего
             // с "изгибом" в сторону точки (x2,y2). Можно использовать и lineTo(), но
             // с quadTo() линия будет плавнее.
-            path.quadTo(
+            curPath.quadTo(
                 currentX, currentY,
                 (motionTouchEventX + currentX) / 2, (motionTouchEventY + currentY) / 2
             )
             currentX = motionTouchEventX
             currentY = motionTouchEventY
-            cacheCanvas.drawPath(path, paint)
         }
         invalidate()
     }
@@ -113,7 +121,8 @@ class PaintView(context: Context) : View(context) {
         }
 
         millPrev = millsCurrent
-        path.reset()
+        accPath.addPath(curPath)
+        curPath.reset()
     }
 
     fun getBitmap() : Bitmap = cacheBitmap
@@ -123,7 +132,8 @@ class PaintView(context: Context) : View(context) {
         motionTouchEventY = 0f
         currentX = 0f
         currentY = 0f
-        path.reset()
+        curPath.reset()
+        accPath.reset()
 
         cacheCanvas.drawColor(backgroundColor)
         invalidate()
