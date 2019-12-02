@@ -2,7 +2,7 @@
  * Ref: https://github.com/gazolla/Kotlin-Algorithm/tree/master/Stack
  */
 
-package s.yarlykov.minipaint.domain
+package s.yarlykov.minipaint
 
 import android.graphics.Path
 
@@ -38,6 +38,10 @@ class PathStack : Iterable<Path> {
         } else {
             return this.items[this.items.count() - 1]
         }
+    }
+
+    fun clear() {
+        items.clear()
     }
 
     override fun toString() = this.items.toString()
