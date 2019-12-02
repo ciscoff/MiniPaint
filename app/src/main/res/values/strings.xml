@@ -4,5 +4,6 @@
     <string name="paint_view_description">Simple line drawing tool</string>
 
     <string name="menu_clear">Clear</string>
+    <string name="menu_clear_all">Clear All</string>
     <string name="menu_share">Share</string>
 </resources>

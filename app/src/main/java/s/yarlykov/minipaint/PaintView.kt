@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint.presentation
+package s.yarlykov.minipaint
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,22 +9,17 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
-import s.yarlykov.minipaint.R
 
 private const val STROKE_WIDTH = 12f
-private const val DOUBLE_CLICK_INTERVAL = 200L
 
-class PaintView(context: Context) : View(context) {
+class PaintView(context: Context, val pathStack : PathStack) : View(context) {
 
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
     private val backgroundColor = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
     private val drawColor = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
-    private var millPrev = System.currentTimeMillis()
 
-    // Accumulative Path
-    private val accPath = Path()
     // Current Path
     private var curPath = Path()
 
@@ -69,8 +64,6 @@ class PaintView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        cacheCanvas.drawPath(accPath, paint)
-        cacheCanvas.drawPath(curPath, paint)
         canvas.drawBitmap(cacheBitmap, 0f, 0f, null)
     }
 
@@ -88,6 +81,7 @@ class PaintView(context: Context) : View(context) {
     }
 
     private fun touchStart() {
+
         curPath.reset()
         curPath.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
@@ -109,33 +103,35 @@ class PaintView(context: Context) : View(context) {
             )
             currentX = motionTouchEventX
             currentY = motionTouchEventY
+
+            for(p in pathStack) {
+                cacheCanvas.drawPath(p, paint)
+            }
+
+            cacheCanvas.drawPath(curPath, paint)
         }
         invalidate()
     }
 
     private fun touchUp() {
-        val millsCurrent = System.currentTimeMillis()
 
-        if(millsCurrent - millPrev <= DOUBLE_CLICK_INTERVAL) {
-            resetAll()
+        if(!curPath.isEmpty) {
+            pathStack.push(Path(curPath))
         }
 
-        millPrev = millsCurrent
-        accPath.addPath(curPath)
         curPath.reset()
     }
 
     fun getBitmap() : Bitmap = cacheBitmap
 
-    fun resetAll() {
-        motionTouchEventX = 0f
-        motionTouchEventY = 0f
-        currentX = 0f
-        currentY = 0f
-        curPath.reset()
-        accPath.reset()
+    fun onDataChanged() {
 
         cacheCanvas.drawColor(backgroundColor)
+
+        for(p in pathStack) {
+            cacheCanvas.drawPath(p, paint)
+        }
+
         invalidate()
     }
 }
