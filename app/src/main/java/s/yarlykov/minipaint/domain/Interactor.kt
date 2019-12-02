@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.domain
 
 import android.graphics.Bitmap
 

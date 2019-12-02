@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.domain
 
 import android.content.Context
 import android.content.Intent
@@ -7,6 +7,7 @@ import androidx.core.content.FileProvider
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import s.yarlykov.minipaint.BuildConfig
 import java.io.File
 import java.io.FileOutputStream
 

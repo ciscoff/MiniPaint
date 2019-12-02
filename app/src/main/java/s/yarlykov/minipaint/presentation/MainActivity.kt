@@ -5,6 +5,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 import androidx.appcompat.app.AppCompatActivity
+import s.yarlykov.minipaint.domain.Interactor
+import s.yarlykov.minipaint.domain.InteractorImpl
 import s.yarlykov.minipaint.presentation.PaintView
 
 class MainActivity : AppCompatActivity() {
@@ -34,8 +36,12 @@ class MainActivity : AppCompatActivity() {
                 interactor.share(paintView.getBitmap())
                 true
             }
-            R.id.menuUndo -> {
+            R.id.menuUndoAll -> {
                 paintView.resetAll()
+                true
+            }
+            R.id.menuUndo -> {
+                paintView.resetLast()
                 true
             }
             else -> super.onOptionsItemSelected(item)

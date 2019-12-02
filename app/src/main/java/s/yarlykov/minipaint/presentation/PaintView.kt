@@ -88,7 +88,12 @@ class PaintView(context: Context) : View(context) {
     }
 
     private fun touchStart() {
-        curPath.reset()
+
+        if(!curPath.isEmpty) {
+            accPath.addPath(curPath)
+            curPath.reset()
+        }
+
         curPath.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
         currentY = motionTouchEventY
@@ -115,17 +120,25 @@ class PaintView(context: Context) : View(context) {
 
     private fun touchUp() {
         val millsCurrent = System.currentTimeMillis()
-
         if(millsCurrent - millPrev <= DOUBLE_CLICK_INTERVAL) {
             resetAll()
         }
 
         millPrev = millsCurrent
-        accPath.addPath(curPath)
-        curPath.reset()
+
+//        accPath.addPath(curPath)
+//        curPath.reset()
     }
 
     fun getBitmap() : Bitmap = cacheBitmap
+
+    fun resetLast() {
+        curPath.reset()
+
+        cacheCanvas.drawPath(accPath, paint)
+        cacheCanvas.drawColor(backgroundColor)
+        invalidate()
+    }
 
     fun resetAll() {
         motionTouchEventX = 0f
