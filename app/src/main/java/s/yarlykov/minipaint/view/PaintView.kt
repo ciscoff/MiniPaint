@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,16 +9,20 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
+import s.yarlykov.minipaint.PathStack
+import s.yarlykov.minipaint.R
 
 private const val STROKE_WIDTH = 12f
 
-class PaintView(context: Context, val pathStack : PathStack) : View(context) {
+class PaintView(context: Context, private val pathStack : PathStack) : View(context) {
 
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
-    private val backgroundColor = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
-    private val drawColor = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+    private val backgroundColor = ResourcesCompat.getColor(resources,
+        R.color.colorBackground, null)
+    private val drawColor = ResourcesCompat.getColor(resources,
+        R.color.colorPaint, null)
 
     // Current Path
     private var curPath = Path()
@@ -44,7 +48,8 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
         style = Paint.Style.STROKE // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
         strokeCap = Paint.Cap.ROUND // default: BUTT
-        strokeWidth = STROKE_WIDTH // default: Hairline-width (really thin)
+        strokeWidth =
+            STROKE_WIDTH // default: Hairline-width (really thin)
     }
 
     init {

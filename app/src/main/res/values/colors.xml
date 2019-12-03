@@ -6,4 +6,14 @@
 
     <color name="colorBackground">#FFFF5500</color>
     <color name="colorPaint">#FFFFEB3B</color>
+
+<!--    Color Picker -->
+    <color name="white">#F5F5F5</color>
+    <color name="yellow">#FFF59D</color>
+    <color name="green">#81C784</color>
+    <color name="blue">#80d8ff</color>
+    <color name="red">#ff8a80</color>
+    <color name="violet">#e1bee7</color>
+    <color name="pink">#f8bbd0</color>
+    <color name="text_secondary">#66000000</color>
 </resources>

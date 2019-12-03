@@ -1,9 +1,15 @@
 <resources>
     <string name="app_name">MiniPaint</string>
-    
+
     <string name="paint_view_description">Simple line drawing tool</string>
 
+    <string name="menu_palette">Palette</string>
     <string name="menu_clear">Clear</string>
     <string name="menu_clear_all">Clear All</string>
     <string name="menu_share">Share</string>
+    <string name="title_activity_palette">PaletteActivity</string>
+
+<!--    Buttons -->
+    <string name="button_cancel">cancel</string>
+    <string name="button_ok">ok</string>
 </resources>

@@ -5,6 +5,11 @@
     tools:showIn="navigation_view">
 
     <item
+        android:id="@+id/menuPalette"
+        android:icon="@drawable/ic_palette"
+        app:showAsAction="always"
+        android:title="@string/menu_palette"/>
+    <item
         android:id="@+id/menuUndo"
         android:icon="@drawable/ic_undo"
         app:showAsAction="always"

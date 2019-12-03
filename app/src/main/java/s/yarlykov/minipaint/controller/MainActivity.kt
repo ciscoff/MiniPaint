@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.controller
 
 import android.content.Context
 import android.content.Intent
@@ -13,6 +13,12 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import org.jetbrains.anko.startActivity
+import s.yarlykov.minipaint.BuildConfig
+import s.yarlykov.minipaint.PaletteActivity
+import s.yarlykov.minipaint.view.PaintView
+import s.yarlykov.minipaint.PathStack
+import s.yarlykov.minipaint.R
 import java.io.File
 import java.io.FileOutputStream
 
@@ -51,6 +57,10 @@ class MainActivity : AppCompatActivity() {
             R.id.menuUndo -> {
                 pathStack.pop()
                 paintView.onDataChanged()
+                true
+            }
+            R.id.menuPalette -> {
+                startActivity<PaletteActivity>()
                 true
             }
             else -> super.onOptionsItemSelected(item)
