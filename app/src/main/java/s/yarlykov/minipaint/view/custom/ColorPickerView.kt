@@ -5,10 +5,15 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.View.MeasureSpec.AT_MOST
 import android.view.View.MeasureSpec.EXACTLY
 import android.widget.GridLayout
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.DP
+import s.yarlykov.minipaint.R
 import s.yarlykov.minipaint.model.Color
 import s.yarlykov.minipaint.model.getColorInt
 import s.yarlykov.minipaint.model.getColorRes
@@ -68,18 +73,36 @@ class ColorPickerView : GridLayout {
         orientation = HORIZONTAL
         columnCount = COLUMNS_PREF
 
-        Color.values().forEach { color ->
-            val colorView =
-                ColorView(context).apply {
-                    fillColorRes = color.getColorRes()
-                    fillColorInt = color.getColorInt(context)
-                    tag = color
-//                    dip(COLOR_VIEW_PADDING).let {
-//                        setPadding(it, it, it, it)
-//                    }
+        val count = Color.values().size
+
+        Color.values().withIndex().forEach { item ->
+
+            val view =
+
+                // Элемент палитры (ColorView)
+                if (item.index != count / 2) {
+
+                    ColorView(context).apply {
+                        fillColorRes = item.value.getColorRes()
+                        fillColorInt = item.value.getColorInt(context)
+                        tag = item.value
 //                    setOnClickListener { onColorClickListener(it.tag as Color) }
+                    }
+                } else {
+                    // Центральный элемент - превью выбранных цветов (MaterialCard)
+                    LayoutInflater
+                        .from(context)
+                        .inflate(R.layout.layout_preview, this, false)
+                        .apply {
+                            (layoutParams as GridLayout.LayoutParams).apply {
+                                setGravity(Gravity.CENTER)
+                            }.let {
+                                layoutParams = it
+                            }
+                        }
                 }
-            addView(colorView)
+
+            addView(view)
         }
     }
 
@@ -92,19 +115,27 @@ class ColorPickerView : GridLayout {
             columnCount = childCount / COLUMNS_PREF
         }
 
-        val childSpecWidth = MeasureSpec.makeMeasureSpec(pickerW / columnCount, EXACTLY)
-        val childSpecHeight =
-            MeasureSpec.makeMeasureSpec(pickerH / (childCount / columnCount), EXACTLY)
+        // Предпочтительные размеры для ребенка
+        val childPrefW = pickerW / columnCount
+        val childPrefH = pickerH / (childCount / columnCount)
 
         (0 until childCount).forEach { i ->
             val v = getChildAt(i)
 
             if (v is ColorView) {
-//                measureChild(v, childSpecWidth, childSpecHeight)
-                v.measure(childSpecWidth, childSpecHeight)
+                childMeasure(v, childPrefW, childPrefH, EXACTLY)
+            } else {
+                childMeasure(v, childPrefW - childPrefW / 6, childPrefH - childPrefH / 6, AT_MOST)
             }
         }
         setMeasuredDimension(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec))
+    }
+
+    // Вызывать measure у дочернего элемента
+    private fun childMeasure(child: View, w: Int, h: Int, mode: Int) {
+        val childSpecWidth = MeasureSpec.makeMeasureSpec(w, mode)
+        val childSpecHeight = MeasureSpec.makeMeasureSpec(h, mode)
+        child.measure(childSpecWidth, childSpecHeight)
     }
 
     fun open() {

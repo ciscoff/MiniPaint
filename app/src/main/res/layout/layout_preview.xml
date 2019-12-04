@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<com.google.android.material.button.MaterialButton-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+
+<!--    android:id="@+id/cardPreview1"-->
+<!--    style="@style/Widget.MaterialComponents.Button.Icon"-->
+<!--    android:layout_width="wrap_content"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:text="@string/button_ok"-->
+<!--    app:icon="@drawable/ic_foreground"/>-->
+
+<com.google.android.material.card.MaterialCardView
+    android:id="@+id/cardPreview1"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:fitsSystemWindows="true"
+    app:cardElevation="6dp"
+    app:cardUseCompatPadding="true"
+    app:layout_constraintTop_toBottomOf="@id/colorPicker"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/buttonCancel"
+    card_view:cardCornerRadius="4dp"
+    card_view:cardBackgroundColor="@color/colorBackground">
+
+    <ImageView
+        android:layout_margin="4dp"
+        android:id="@+id/preview1"
+        android:tint="@color/amber"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_brush" />
+</com.google.android.material.card.MaterialCardView>
