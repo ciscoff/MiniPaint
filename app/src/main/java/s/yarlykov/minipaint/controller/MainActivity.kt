@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.menuPalette -> {
-                startActivity<PaletteActivity>()
+                startPaletteActivity()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -72,7 +72,15 @@ class MainActivity : AppCompatActivity() {
         disposable.clear()
     }
 
-    fun share(bitmap: Bitmap) {
+    private fun startPaletteActivity() {
+//        startActivity(Intent(this, PaletteActivity::class.java).apply {
+//            putExtra(getString(R.string.key_bg), paintView.)
+//            putExtra(getString(R.string.key_fg), note)
+//        })
+        startActivity<PaletteActivity>()
+    }
+
+    private fun share(bitmap: Bitmap) {
 
         disposable.add(
             bitmap.toCachedPng(this)

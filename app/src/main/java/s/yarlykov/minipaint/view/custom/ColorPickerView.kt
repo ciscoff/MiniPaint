@@ -4,15 +4,14 @@ import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
 import android.view.View.MeasureSpec.EXACTLY
 import android.widget.GridLayout
-import androidx.annotation.Dimension
-import androidx.annotation.Dimension.DP
+import android.widget.ImageView
+import com.google.android.material.card.MaterialCardView
 import s.yarlykov.minipaint.R
 import s.yarlykov.minipaint.model.Color
 import s.yarlykov.minipaint.model.getColorInt
@@ -26,14 +25,25 @@ class ColorPickerView : GridLayout {
         private const val PALETTE_ANIMATION_DURATION = 150L
         private const val HEIGHT = "height"
         private const val SCALE = "scale"
-        @Dimension(unit = DP)
-        private const val COLOR_VIEW_PADDING = 8
     }
 
-    var onColorClickListener: (color: Color) -> Unit = { }
+    private lateinit var chosenColors : Pair<Int, Int>
+    private lateinit var choicePreview : View
+    private var needBackground = true
 
-    val isOpen: Boolean
-        get() = measuredHeight > 0
+    /**
+     * Вызывается при клике на каждом элементе палитры. По очереди меняет
+     * цвета фон/кисть.
+     */
+    var onColorClickListener: (color: Color) -> Unit = {c ->
+        if(needBackground) {
+            (choicePreview as MaterialCardView).setCardBackgroundColor(c.getColorInt(context))
+        } else {
+            val iv = choicePreview.findViewById<ImageView>(R.id.ivPreview)
+            iv.setColorFilter(c.getColorInt(context), android.graphics.PorterDuff.Mode.SRC_IN)
+        }
+        needBackground = !needBackground
+    }
 
     private var desiredHeight = 0
 
@@ -86,7 +96,7 @@ class ColorPickerView : GridLayout {
                         fillColorRes = item.value.getColorRes()
                         fillColorInt = item.value.getColorInt(context)
                         tag = item.value
-//                    setOnClickListener { onColorClickListener(it.tag as Color) }
+                    setOnClickListener { onColorClickListener(it.tag as Color) }
                     }
                 } else {
                     // Центральный элемент - превью выбранных цветов (MaterialCard)
@@ -99,6 +109,8 @@ class ColorPickerView : GridLayout {
                             }.let {
                                 layoutParams = it
                             }
+
+                            choicePreview = this
                         }
                 }
 

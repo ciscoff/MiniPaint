@@ -11,7 +11,7 @@
 <!--    app:icon="@drawable/ic_foreground"/>-->
 
 <com.google.android.material.card.MaterialCardView
-    android:id="@+id/cardPreview1"
+    android:id="@+id/cardPreview"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -29,8 +29,8 @@
     card_view:cardBackgroundColor="@color/colorBackground">
 
     <ImageView
+        android:id="@+id/ivPreview"
         android:layout_margin="4dp"
-        android:id="@+id/preview1"
         android:tint="@color/amber"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
