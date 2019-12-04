@@ -5,16 +5,15 @@ import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
-import android.view.Gravity
+import android.view.View.MeasureSpec.EXACTLY
 import android.widget.GridLayout
-import android.widget.LinearLayout
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.DP
-import androidx.constraintlayout.widget.ConstraintLayout
-import org.jetbrains.anko.dip
 import s.yarlykov.minipaint.model.Color
 import s.yarlykov.minipaint.model.getColorInt
 import s.yarlykov.minipaint.model.getColorRes
+
+private const val COLUMNS_PREF = 3
 
 class ColorPickerView : GridLayout {
 
@@ -67,51 +66,46 @@ class ColorPickerView : GridLayout {
         defStyleAttr
     ) {
         orientation = HORIZONTAL
-        columnCount = 2
+        columnCount = COLUMNS_PREF
 
         Color.values().forEach { color ->
-
             val colorView =
                 ColorView(context).apply {
                     fillColorRes = color.getColorRes()
                     fillColorInt = color.getColorInt(context)
                     tag = color
-                    preferredDims = measuredWidth/columnCount to measuredWidth/4
 //                    dip(COLOR_VIEW_PADDING).let {
 //                        setPadding(it, it, it, it)
 //                    }
 //                    setOnClickListener { onColorClickListener(it.tag as Color) }
                 }
-
             addView(colorView)
-            (colorView.layoutParams as LayoutParams).columnSpec = spec(UNDEFINED, 1f)
-            Log.d("DIMS", "w.h = $width.$height")
-
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    override fun onMeasure(widthSpec: Int, heightSpec: Int) {
+        val pickerW = MeasureSpec.getSize(widthSpec)
+        val pickerH = MeasureSpec.getSize(heightSpec)
 
-        layoutParams.apply {
-            desiredHeight = height
-            height = 0
-        }.let {
-            layoutParams = it
+        // Для положения Landscape увеличиваем кол-во столбцов
+        if (pickerW > pickerH) {
+            columnCount = childCount / COLUMNS_PREF
         }
-    }
 
-    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        val childSpecWidth = MeasureSpec.makeMeasureSpec(pickerW / columnCount, EXACTLY)
+        val childSpecHeight =
+            MeasureSpec.makeMeasureSpec(pickerH / (childCount / columnCount), EXACTLY)
 
-        (0 until childCount).forEach {i ->
+        (0 until childCount).forEach { i ->
             val v = getChildAt(i)
 
-            if(v is ColorView) {
-                v.preferredDims = width/columnCount to height/6
+            if (v is ColorView) {
+//                measureChild(v, childSpecWidth, childSpecHeight)
+                v.measure(childSpecWidth, childSpecHeight)
             }
         }
+        setMeasuredDimension(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec))
     }
-
 
     fun open() {
         animator.cancel()

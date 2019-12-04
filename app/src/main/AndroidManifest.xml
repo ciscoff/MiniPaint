@@ -12,7 +12,7 @@
         <activity
             android:name=".PaletteActivity"
             android:label="@string/title_activity_palette"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar.FullScreen" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -9,7 +9,11 @@
     <string name="menu_share">Share</string>
     <string name="title_activity_palette">PaletteActivity</string>
 
-<!--    Buttons -->
+    <!--    Buttons -->
     <string name="button_cancel">cancel</string>
     <string name="button_ok">ok</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

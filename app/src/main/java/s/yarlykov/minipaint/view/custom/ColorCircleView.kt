@@ -50,7 +50,7 @@ class ColorCircleView
         }
 
     @ColorRes
-    var strokeColorRes: Int = R.color.text_secondary
+    var strokeColorRes: Int = R.color.black
         set(value) {
             field = value
             strokePaint.color = ContextCompat.getColor(context, value)
@@ -72,7 +72,7 @@ class ColorCircleView
             fillColorRes = getResourceId(R.styleable.ColorCircleView_fillColor, R.color.white)
             strokeWidth = getDimension(R.styleable.ColorCircleView_strokeWidth, defStrokeWidthPx)
             strokeColorRes =
-                getResourceId(R.styleable.ColorCircleView_strokeColor, R.color.text_secondary)
+                getResourceId(R.styleable.ColorCircleView_strokeColor, R.color.black)
         }
     }
 

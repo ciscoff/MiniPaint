@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -22,20 +21,6 @@ class ColorView
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
-
-    var preferredDims: Pair<Int, Int> = 128 to 128
-        set(value) {
-            if(value.first > 0 && value.second > 0) {
-                field = value
-
-                layoutParams.apply {
-                    width = value.first
-                    height = value.second
-                }.let {
-                    layoutParams = it
-                }
-            }
-        }
 
     /**
      * @ColorRes - это ссылка на ресурс, то есть R.color.black
@@ -64,9 +49,10 @@ class ColorView
         return super.performClick()
     }
 
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        Log.d("DIMS","ColorView Dims = $w.$h")
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val w = MeasureSpec.getSize(widthMeasureSpec)
+        val h = MeasureSpec.getSize(heightMeasureSpec)
+        setMeasuredDimension(w, h)
     }
 
     override fun onDraw(canvas: Canvas) {
