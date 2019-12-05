@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.view
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -9,16 +9,30 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
+import s.yarlykov.minipaint.model.PathStack
+import s.yarlykov.minipaint.R
 
 private const val STROKE_WIDTH = 12f
 
-class PaintView(context: Context, val pathStack : PathStack) : View(context) {
+/**
+ * Экран рисования
+ */
+class PaintView(context: Context, private val pathStack: PathStack) : View(context) {
 
+    /**
+     * Все рисование делаем в отдельной битмапе. Потом в onDraw()
+     * копируем её контент в битмапу нашей View.
+     * @cacheBitmap
+     * @cacheCanvas
+     */
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
-    private val backgroundColor = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
-    private val drawColor = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+    var colorBackground = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+        private set
+
+    var colorDraw = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+        private set
 
     // Current Path
     private var curPath = Path()
@@ -35,7 +49,7 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
     private var currentY = 0f
 
     private val paint = Paint().apply {
-        color = drawColor
+        color = colorDraw
 
         // Смягчить по краям
         isAntiAlias = true
@@ -44,7 +58,8 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
         style = Paint.Style.STROKE // default: FILL
         strokeJoin = Paint.Join.ROUND // default: MITER
         strokeCap = Paint.Cap.ROUND // default: BUTT
-        strokeWidth = STROKE_WIDTH // default: Hairline-width (really thin)
+        strokeWidth =
+            STROKE_WIDTH // default: Hairline-width (really thin)
     }
 
     init {
@@ -59,7 +74,7 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
 
         cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         cacheCanvas = Canvas(cacheBitmap)
-        cacheCanvas.drawColor(backgroundColor)
+        cacheCanvas.drawColor(colorBackground)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -81,7 +96,6 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
     }
 
     private fun touchStart() {
-
         curPath.reset()
         curPath.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
@@ -104,7 +118,7 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
             currentX = motionTouchEventX
             currentY = motionTouchEventY
 
-            for(p in pathStack) {
+            for (p in pathStack) {
                 cacheCanvas.drawPath(p, paint)
             }
 
@@ -115,23 +129,36 @@ class PaintView(context: Context, val pathStack : PathStack) : View(context) {
 
     private fun touchUp() {
 
-        if(!curPath.isEmpty) {
+        if (!curPath.isEmpty) {
             pathStack.push(Path(curPath))
         }
 
         curPath.reset()
     }
 
-    fun getBitmap() : Bitmap = cacheBitmap
+    /**
+     * Используется для шаринга
+     */
+    fun getBitmap(): Bitmap = cacheBitmap
 
     fun onDataChanged() {
+        cacheCanvas.drawColor(colorBackground)
 
-        cacheCanvas.drawColor(backgroundColor)
-
-        for(p in pathStack) {
+        for (p in pathStack) {
             cacheCanvas.drawPath(p, paint)
         }
-
         invalidate()
+    }
+
+    /**
+     * Если изменились цвета, то их нужно сохранять в глобальных полях, потому что
+     * к ним нужен доступ из MainActivity.
+     */
+    fun onColorsChanged(bg: Int, fg: Int) {
+        colorBackground = bg
+        colorDraw = fg
+
+        paint.color = colorDraw
+        onDataChanged()
     }
 }

@@ -2,7 +2,7 @@
  * Ref: https://github.com/gazolla/Kotlin-Algorithm/tree/master/Stack
  */
 
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.model
 
 import android.graphics.Path
 
