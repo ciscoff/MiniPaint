@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.content_palette.*
 
 class PaletteActivity : AppCompatActivity() {
@@ -15,6 +16,19 @@ class PaletteActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+
+        with(intent){
+            val bg = getIntExtra(
+                getString(R.string.key_bg),
+                ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+            )
+
+            val fg = getIntExtra(
+                getString(R.string.key_fg),
+                ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+            )
+            colorPicker.setPreviewColors(bg to fg)
+        }
 
         buttonCancel.setOnClickListener {
             finish()
