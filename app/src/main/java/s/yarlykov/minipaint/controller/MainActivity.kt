@@ -9,18 +9,20 @@ import android.view.MenuItem
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.content.res.ResourcesCompat
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import org.jetbrains.anko.startActivity
 import s.yarlykov.minipaint.BuildConfig
 import s.yarlykov.minipaint.PaletteActivity
-import s.yarlykov.minipaint.view.PaintView
 import s.yarlykov.minipaint.PathStack
 import s.yarlykov.minipaint.R
+import s.yarlykov.minipaint.view.PaintView
 import java.io.File
 import java.io.FileOutputStream
+
+private const val REQUEST_COLOR = 1
 
 class MainActivity : AppCompatActivity() {
 
@@ -73,11 +75,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startPaletteActivity() {
-//        startActivity(Intent(this, PaletteActivity::class.java).apply {
-//            putExtra(getString(R.string.key_bg), paintView.)
-//            putExtra(getString(R.string.key_fg), note)
-//        })
-        startActivity<PaletteActivity>()
+        startActivityForResult(Intent(this, PaletteActivity::class.java), REQUEST_COLOR)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode != REQUEST_COLOR) return
+
+        data?.let {intent ->
+
+            paintView.onColorsChanged(
+                intent.getIntExtra(getString(R.string.key_bg),
+                    ResourcesCompat.getColor(resources, R.color.colorBackground, null)),
+                intent.getIntExtra(getString(R.string.key_fg),
+                    ResourcesCompat.getColor(resources, R.color.colorPaint, null))
+            )
+        }
     }
 
     private fun share(bitmap: Bitmap) {

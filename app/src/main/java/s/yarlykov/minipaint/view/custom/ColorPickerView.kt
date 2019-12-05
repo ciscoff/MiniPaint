@@ -27,22 +27,28 @@ class ColorPickerView : GridLayout {
         private const val SCALE = "scale"
     }
 
-    private lateinit var chosenColors : Pair<Int, Int>
-    private lateinit var choicePreview : View
-    private var needBackground = true
+    var chosenBackground: Int = 0
+    var chosenForeground: Int = 0
+
+    private lateinit var choicePreview: View
+    private var isBackgroundSelected = true
 
     /**
      * Вызывается при клике на каждом элементе палитры. По очереди меняет
      * цвета фон/кисть.
      */
-    var onColorClickListener: (color: Color) -> Unit = {c ->
-        if(needBackground) {
-            (choicePreview as MaterialCardView).setCardBackgroundColor(c.getColorInt(context))
+    var onColorClickListener: (selectedColor: Color) -> Unit = { color ->
+        if (isBackgroundSelected) {
+            chosenBackground = color.getColorInt(context)
+
+            (choicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
         } else {
-            val iv = choicePreview.findViewById<ImageView>(R.id.ivPreview)
-            iv.setColorFilter(c.getColorInt(context), android.graphics.PorterDuff.Mode.SRC_IN)
+            chosenForeground = color.getColorInt(context)
+
+            choicePreview.findViewById<ImageView>(R.id.ivPreview)
+                .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
         }
-        needBackground = !needBackground
+        isBackgroundSelected = !isBackgroundSelected
     }
 
     private var desiredHeight = 0
@@ -96,7 +102,7 @@ class ColorPickerView : GridLayout {
                         fillColorRes = item.value.getColorRes()
                         fillColorInt = item.value.getColorInt(context)
                         tag = item.value
-                    setOnClickListener { onColorClickListener(it.tag as Color) }
+                        setOnClickListener { onColorClickListener(it.tag as Color) }
                     }
                 } else {
                     // Центральный элемент - превью выбранных цветов (MaterialCard)

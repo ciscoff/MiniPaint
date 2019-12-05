@@ -19,9 +19,10 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
-    private val backgroundColor = ResourcesCompat.getColor(resources,
+    private var colorBackground = ResourcesCompat.getColor(resources,
         R.color.colorBackground, null)
-    private val drawColor = ResourcesCompat.getColor(resources,
+
+    private var colorDraw = ResourcesCompat.getColor(resources,
         R.color.colorPaint, null)
 
     // Current Path
@@ -39,7 +40,7 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
     private var currentY = 0f
 
     private val paint = Paint().apply {
-        color = drawColor
+        color = colorDraw
 
         // Смягчить по краям
         isAntiAlias = true
@@ -64,7 +65,7 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
 
         cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         cacheCanvas = Canvas(cacheBitmap)
-        cacheCanvas.drawColor(backgroundColor)
+        cacheCanvas.drawColor(colorBackground)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -86,7 +87,6 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
     }
 
     private fun touchStart() {
-
         curPath.reset()
         curPath.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
@@ -130,13 +130,17 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
     fun getBitmap() : Bitmap = cacheBitmap
 
     fun onDataChanged() {
-
-        cacheCanvas.drawColor(backgroundColor)
+        cacheCanvas.drawColor(colorBackground)
 
         for(p in pathStack) {
             cacheCanvas.drawPath(p, paint)
         }
-
         invalidate()
+    }
+
+    fun onColorsChanged(bg : Int, fg: Int) {
+        colorBackground = bg
+        paint.color = fg
+        onDataChanged()
     }
 }
