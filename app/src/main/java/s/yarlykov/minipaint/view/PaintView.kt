@@ -9,21 +9,30 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
-import s.yarlykov.minipaint.PathStack
+import s.yarlykov.minipaint.model.PathStack
 import s.yarlykov.minipaint.R
 
 private const val STROKE_WIDTH = 12f
 
-class PaintView(context: Context, private val pathStack : PathStack) : View(context) {
+/**
+ * Экран рисования
+ */
+class PaintView(context: Context, private val pathStack: PathStack) : View(context) {
 
+    /**
+     * Все рисование делаем в отдельной битмапе. Потом в onDraw()
+     * копируем её контент в битмапу нашей View.
+     * @cacheBitmap
+     * @cacheCanvas
+     */
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
-    private var colorBackground = ResourcesCompat.getColor(resources,
-        R.color.colorBackground, null)
+    var colorBackground = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+        private set
 
-    private var colorDraw = ResourcesCompat.getColor(resources,
-        R.color.colorPaint, null)
+    var colorDraw = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+        private set
 
     // Current Path
     private var curPath = Path()
@@ -109,7 +118,7 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
             currentX = motionTouchEventX
             currentY = motionTouchEventY
 
-            for(p in pathStack) {
+            for (p in pathStack) {
                 cacheCanvas.drawPath(p, paint)
             }
 
@@ -120,27 +129,36 @@ class PaintView(context: Context, private val pathStack : PathStack) : View(cont
 
     private fun touchUp() {
 
-        if(!curPath.isEmpty) {
+        if (!curPath.isEmpty) {
             pathStack.push(Path(curPath))
         }
 
         curPath.reset()
     }
 
-    fun getBitmap() : Bitmap = cacheBitmap
+    /**
+     * Используется для шаринга
+     */
+    fun getBitmap(): Bitmap = cacheBitmap
 
     fun onDataChanged() {
         cacheCanvas.drawColor(colorBackground)
 
-        for(p in pathStack) {
+        for (p in pathStack) {
             cacheCanvas.drawPath(p, paint)
         }
         invalidate()
     }
 
-    fun onColorsChanged(bg : Int, fg: Int) {
+    /**
+     * Если изменились цвета, то их нужно сохранять в глобальных полях, потому что
+     * к ним нужен доступ из MainActivity.
+     */
+    fun onColorsChanged(bg: Int, fg: Int) {
         colorBackground = bg
-        paint.color = fg
+        colorDraw = fg
+
+        paint.color = colorDraw
         onDataChanged()
     }
 }

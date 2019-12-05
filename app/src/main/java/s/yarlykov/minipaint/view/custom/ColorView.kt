@@ -11,6 +11,10 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.minipaint.R
 
+/**
+ * Отдельный цветовой элемент в палитре.
+ * Обработчки кликов инжектится в ColorPickerView.
+ */
 class ColorView
 @JvmOverloads constructor(
     context: Context,
@@ -45,10 +49,9 @@ class ColorView
         isClickable = true
     }
 
-    override fun performClick(): Boolean {
-        return super.performClick()
-    }
-
+    /**
+     * Просто принимаем предлженные размеры
+     */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)

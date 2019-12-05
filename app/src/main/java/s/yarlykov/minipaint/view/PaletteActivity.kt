@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint
+package s.yarlykov.minipaint.view
 
 import android.app.Activity
 import android.content.Intent
@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.content_palette.*
+import s.yarlykov.minipaint.R
 
 class PaletteActivity : AppCompatActivity() {
 
@@ -15,12 +16,19 @@ class PaletteActivity : AppCompatActivity() {
         initViews()
     }
 
+    /**
+     * В интенте из MainActivity прилетают текущие цвета экрана рисования.
+     * Их нужно передать в ColorPicker для отрисовки элемента preview.
+     */
     private fun initViews() {
 
-        with(intent){
+        with(intent) {
             val bg = getIntExtra(
                 getString(R.string.key_bg),
-                ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.colorBackground, null
+                )
             )
 
             val fg = getIntExtra(
@@ -30,10 +38,13 @@ class PaletteActivity : AppCompatActivity() {
             colorPicker.setPreviewColors(bg to fg)
         }
 
+        // Cancel - закрыть активити
         buttonCancel.setOnClickListener {
             finish()
         }
 
+        // OK - проверить, что цвета валидные и вернуть результат в MainActivity.
+        // Одинаковые цвета фона и кисти не разрешаются.
         buttonOk.setOnClickListener {
             with(colorPicker) {
 
@@ -48,6 +59,7 @@ class PaletteActivity : AppCompatActivity() {
         }
     }
 
+    // Вернуть результат в MainActivity
     private fun sendResult() {
         setResult(Activity.RESULT_OK,
             Intent().apply {

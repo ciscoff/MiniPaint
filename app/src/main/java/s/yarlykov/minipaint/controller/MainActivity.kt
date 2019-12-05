@@ -15,8 +15,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import s.yarlykov.minipaint.BuildConfig
-import s.yarlykov.minipaint.PaletteActivity
-import s.yarlykov.minipaint.PathStack
+import s.yarlykov.minipaint.view.PaletteActivity
+import s.yarlykov.minipaint.model.PathStack
 import s.yarlykov.minipaint.R
 import s.yarlykov.minipaint.view.PaintView
 import java.io.File
@@ -26,6 +26,11 @@ private const val REQUEST_COLOR = 1
 
 class MainActivity : AppCompatActivity() {
 
+    /**
+     * @paintView - Экран рисования
+     * @pathStack - Стэк (он же List) для истории нарисованных линий
+     *
+     */
     lateinit var paintView: PaintView
 
     private val disposable = CompositeDisposable()
@@ -74,10 +79,23 @@ class MainActivity : AppCompatActivity() {
         disposable.clear()
     }
 
+    /**
+     * Запустить активити ColorPicker'а. Передать в неё текущие цветовые настройки экрана
+     * рисования. Нужно, чтобы внутри ColorPicker'а в элементе preview показать текущие
+     * цвета фона и кисти.
+     */
     private fun startPaletteActivity() {
-        startActivityForResult(Intent(this, PaletteActivity::class.java), REQUEST_COLOR)
+        val intent = Intent(this, PaletteActivity::class.java).apply {
+            putExtra(getString(R.string.key_bg), paintView.colorBackground)
+            putExtra(getString(R.string.key_fg), paintView.colorDraw)
+        }
+        startActivityForResult(intent, REQUEST_COLOR)
     }
 
+    /**
+     * Из активити ColorPicker'а должны прилететь новые настройки цвета, которые
+     * передаем в paintView вызовом onColorsChanged()
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -94,6 +112,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Открыть системный chooser для выбора приложения отправки картинки
+     */
     private fun share(bitmap: Bitmap) {
 
         disposable.add(
@@ -120,6 +141,9 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+/**
+ * Сохранить битмапу в файл в кэш-каталоге приложения и вернуть этот файл через Single<File>
+ */
 private fun Bitmap.toCachedPng(context: Context): Single<File> {
     val cacheDir = context.externalCacheDir
     val fileName = System.currentTimeMillis().toString(16)

@@ -27,11 +27,24 @@ class ColorPickerView : GridLayout {
         private const val SCALE = "scale"
     }
 
+    /**
+     * Цвета фона и кисти, выбранные пользователем
+     */
     var chosenBackground: Int = 0
+        private set
     var chosenForeground: Int = 0
+        private set
 
+    /**
+     * @choicePreview - элемент для отрисовки пользовательского выбора
+     * @isBackgroundSelected - флаг. Цвета фона и кисти выбираются по очереди.
+     * Флаг показывает что было выбрано очередным кликом по ColorView.
+     */
     private lateinit var choicePreview: View
     private var isBackgroundSelected = true
+
+    // ?
+    private var desiredHeight = 0
 
     /**
      * Вызывается при клике на каждом элементе палитры. По очереди меняет
@@ -39,19 +52,12 @@ class ColorPickerView : GridLayout {
      */
     var onColorClickListener: (selectedColor: Color) -> Unit = { color ->
         if (isBackgroundSelected) {
-            chosenBackground = color.getColorInt(context)
-
-            (choicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
+            setPreviewColors(color.getColorInt(context) to 0)
         } else {
-            chosenForeground = color.getColorInt(context)
-
-            choicePreview.findViewById<ImageView>(R.id.ivPreview)
-                .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
+            setPreviewColors(0 to color.getColorInt(context))
         }
         isBackgroundSelected = !isBackgroundSelected
     }
-
-    private var desiredHeight = 0
 
     private val animator by lazy {
         ValueAnimator().apply {
@@ -89,6 +95,10 @@ class ColorPickerView : GridLayout {
         orientation = HORIZONTAL
         columnCount = COLUMNS_PREF
 
+        /**
+         * Проход по всем цветам палитры. Вместо среднего элемента поместим в таблицу
+         * choicePreview для отображения пользовательского выбора.
+         */
         val count = Color.values().size
 
         Color.values().withIndex().forEach { item ->
@@ -124,6 +134,10 @@ class ColorPickerView : GridLayout {
         }
     }
 
+    /**
+     * В портретной ориентации таблица размерности AxB
+     * В алаьбомной - BxA
+     */
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val pickerW = MeasureSpec.getSize(widthSpec)
         val pickerH = MeasureSpec.getSize(heightSpec)
@@ -149,11 +163,27 @@ class ColorPickerView : GridLayout {
         setMeasuredDimension(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec))
     }
 
-    // Вызывать measure у дочернего элемента
+    // Вызвать measure у дочернего элемента
     private fun childMeasure(child: View, w: Int, h: Int, mode: Int) {
         val childSpecWidth = MeasureSpec.makeMeasureSpec(w, mode)
         val childSpecHeight = MeasureSpec.makeMeasureSpec(h, mode)
         child.measure(childSpecWidth, childSpecHeight)
+    }
+
+    // Вызывается при необходимости обновить цвета в preview в том числе и из
+    // родительской PaletteActivity
+    fun setPreviewColors(colors: Pair<Int, Int>) {
+
+        if (colors.first != 0) {
+            chosenBackground = colors.first
+            (choicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
+        }
+
+        if (colors.second != 0) {
+            chosenForeground = colors.second
+            choicePreview.findViewById<ImageView>(R.id.ivPreview)
+                .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
+        }
     }
 
     fun open() {

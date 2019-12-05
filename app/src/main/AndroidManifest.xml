@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".PaletteActivity"
+            android:name=".view.PaletteActivity"
             android:label="@string/title_activity_palette"
             android:theme="@style/AppTheme.NoActionBar.FullScreen" />
 
