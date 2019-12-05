@@ -6,6 +6,9 @@ import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.minipaint.R
 
 enum class Color {
+    WHITE,
+    BLUE_GREY,
+    BLACK,
     RED,
     PINK,
     PURPLE,
@@ -23,10 +26,7 @@ enum class Color {
     ORANGE,
     DEEP_ORANGE,
     BROWN,
-    GREY,
-    BLUE_GREY,
-    WHITE,
-    BLACK
+    GREY
 }
 
 fun Color.getColorInt(context: Context) =

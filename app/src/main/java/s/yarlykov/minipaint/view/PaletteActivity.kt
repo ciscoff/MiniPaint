@@ -2,6 +2,7 @@ package s.yarlykov.minipaint.view
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -13,6 +14,17 @@ class PaletteActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.content_palette)
+
+        // Заливка градиентом сверху вниз
+        val gd = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(
+                ResourcesCompat.getColor(resources, R.color.colorPrimary, null),
+                ResourcesCompat.getColor(resources, android.R.color.white, null)
+            )
+        )
+
+        paletteLayout.background = gd
         initViews()
     }
 

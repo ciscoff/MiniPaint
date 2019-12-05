@@ -1,5 +1,6 @@
 package s.yarlykov.minipaint.view.custom
 
+import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.content.Context
@@ -42,9 +43,6 @@ class ColorPickerView : GridLayout {
      */
     private lateinit var choicePreview: View
     private var isBackgroundSelected = true
-
-    // ?
-    private var desiredHeight = 0
 
     /**
      * Вызывается при клике на каждом элементе палитры. По очереди меняет
@@ -112,7 +110,10 @@ class ColorPickerView : GridLayout {
                         fillColorRes = item.value.getColorRes()
                         fillColorInt = item.value.getColorInt(context)
                         tag = item.value
-                        setOnClickListener { onColorClickListener(it.tag as Color) }
+                        setOnClickListener {view ->
+                            animate(view)
+                            onColorClickListener(view.tag as Color)
+                        }
                     }
                 } else {
                     // Центральный элемент - превью выбранных цветов (MaterialCard)
@@ -125,7 +126,6 @@ class ColorPickerView : GridLayout {
                             }.let {
                                 layoutParams = it
                             }
-
                             choicePreview = this
                         }
                 }
@@ -163,6 +163,18 @@ class ColorPickerView : GridLayout {
         setMeasuredDimension(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec))
     }
 
+    // Анимация масштабированием (уменьшение размера и восстановление)
+    private fun animate(view : View) {
+        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0.8f)
+        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.8f)
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
+            view, scaleX, scaleY)
+        animator.repeatCount = 1
+        animator.duration = 100
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.start()
+    }
+
     // Вызвать measure у дочернего элемента
     private fun childMeasure(child: View, w: Int, h: Int, mode: Int) {
         val childSpecWidth = MeasureSpec.makeMeasureSpec(w, mode)
@@ -184,23 +196,5 @@ class ColorPickerView : GridLayout {
             choicePreview.findViewById<ImageView>(R.id.ivPreview)
                 .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
         }
-    }
-
-    fun open() {
-        animator.cancel()
-        animator.setValues(
-            PropertyValuesHolder.ofInt(HEIGHT, measuredHeight, desiredHeight),
-            PropertyValuesHolder.ofFloat(SCALE, getChildAt(0).scaleX, 1f)
-        )
-        animator.start()
-    }
-
-    fun close() {
-        animator.cancel()
-        animator.setValues(
-            PropertyValuesHolder.ofInt(HEIGHT, measuredHeight, 0),
-            PropertyValuesHolder.ofFloat(SCALE, getChildAt(0).scaleX, 0f)
-        )
-        animator.start()
     }
 }
