@@ -16,7 +16,7 @@ class PaletteActivity : AppCompatActivity() {
         setContentView(R.layout.content_palette)
 
         // Заливка градиентом сверху вниз
-        val gd = GradientDrawable(
+        paletteLayout.background = GradientDrawable(
             GradientDrawable.Orientation.TOP_BOTTOM,
             intArrayOf(
                 ResourcesCompat.getColor(resources, R.color.colorPrimary, null),
@@ -24,7 +24,6 @@ class PaletteActivity : AppCompatActivity() {
             )
         )
 
-        paletteLayout.background = gd
         initViews()
     }
 

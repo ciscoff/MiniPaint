@@ -39,7 +39,21 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        paintView = PaintView(this, pathStack)
+        // Установка / восстановление цветов в PaintView
+        val colors =
+            if (savedInstanceState != null) {
+                Pair(
+                    savedInstanceState.getInt(getString(R.string.key_bg)),
+                    savedInstanceState.getInt(getString(R.string.key_fg))
+                )
+            } else {
+                Pair(
+                    ResourcesCompat.getColor(resources, R.color.colorBackground, null),
+                    ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+                )
+            }
+
+        paintView = PaintView(this, colors, pathStack)
         paintView.systemUiVisibility = SYSTEM_UI_FLAG_FULLSCREEN
         paintView.contentDescription = getString(R.string.paint_view_description)
         setContentView(paintView)
@@ -99,17 +113,27 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode != REQUEST_COLOR) return
+        if (requestCode != REQUEST_COLOR) return
 
-        data?.let {intent ->
+        data?.let { intent ->
 
             paintView.onColorsChanged(
-                intent.getIntExtra(getString(R.string.key_bg),
-                    ResourcesCompat.getColor(resources, R.color.colorBackground, null)),
-                intent.getIntExtra(getString(R.string.key_fg),
-                    ResourcesCompat.getColor(resources, R.color.colorPaint, null))
+                intent.getIntExtra(
+                    getString(R.string.key_bg),
+                    ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+                ),
+                intent.getIntExtra(
+                    getString(R.string.key_fg),
+                    ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+                )
             )
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(getString(R.string.key_bg), paintView.colorBackground)
+        outState.putInt(getString(R.string.key_fg), paintView.colorDraw)
     }
 
     /**
