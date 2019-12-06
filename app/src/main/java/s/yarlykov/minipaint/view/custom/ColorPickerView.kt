@@ -22,12 +22,6 @@ private const val COLUMNS_PREF = 3
 
 class ColorPickerView : GridLayout {
 
-    companion object {
-        private const val PALETTE_ANIMATION_DURATION = 150L
-        private const val HEIGHT = "height"
-        private const val SCALE = "scale"
-    }
-
     /**
      * Цвета фона и кисти, выбранные пользователем
      */
@@ -55,32 +49,6 @@ class ColorPickerView : GridLayout {
             setPreviewColors(0 to color.getColorInt(context))
         }
         isBackgroundSelected = !isBackgroundSelected
-    }
-
-    private val animator by lazy {
-        ValueAnimator().apply {
-            duration = PALETTE_ANIMATION_DURATION
-            addUpdateListener(updateListener)
-        }
-    }
-
-    private val updateListener by lazy {
-        ValueAnimator.AnimatorUpdateListener { animator ->
-            layoutParams.apply {
-                height = animator.getAnimatedValue(HEIGHT) as Int
-            }.let {
-                layoutParams = it
-            }
-
-            val scaleFactor = animator.getAnimatedValue(SCALE) as Float
-            for (i in 0 until childCount) {
-                getChildAt(i).apply {
-                    scaleX = scaleFactor
-                    scaleY = scaleFactor
-                    alpha = scaleFactor
-                }
-            }
-        }
     }
 
     constructor(context: Context) : this(context, null, 0)

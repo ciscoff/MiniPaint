@@ -17,7 +17,9 @@ private const val STROKE_WIDTH = 12f
 /**
  * Экран рисования
  */
-class PaintView(context: Context, private val pathStack: PathStack) : View(context) {
+class PaintView(context: Context,
+                colors : Pair<Int, Int>,
+                private val pathStack: PathStack) : View(context) {
 
     /**
      * Все рисование делаем в отдельной битмапе. Потом в onDraw()
@@ -28,10 +30,10 @@ class PaintView(context: Context, private val pathStack: PathStack) : View(conte
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
 
-    var colorBackground = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+    var colorBackground = colors.first
         private set
 
-    var colorDraw = ResourcesCompat.getColor(resources, R.color.colorPaint, null)
+    var colorDraw = colors.second
         private set
 
     // Current Path
