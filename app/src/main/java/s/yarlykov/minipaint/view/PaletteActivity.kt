@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.res.ResourcesCompat
 import kotlinx.android.synthetic.main.content_palette.*
 import s.yarlykov.minipaint.R
@@ -51,7 +53,7 @@ class PaletteActivity : AppCompatActivity() {
 
         // Cancel - закрыть активити
         buttonCancel.setOnClickListener {
-            finish()
+            (paletteLayout as MotionLayout).transitionToStart()
         }
 
         // OK - проверить, что цвета валидные и вернуть результат в MainActivity.
@@ -68,6 +70,27 @@ class PaletteActivity : AppCompatActivity() {
                 }
             }
         }
+
+        (paletteLayout as MotionLayout).setTransitionListener(
+            object : MotionLayout.TransitionListener {
+                override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
+                }
+                override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+                }
+                override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
+                }
+                override fun onTransitionCompleted(p0: MotionLayout?, constraintSetId: Int) {
+                    if(constraintSetId == R.id.start) {
+                        this@PaletteActivity.finish()
+                    }
+                }
+            }
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (paletteLayout as MotionLayout).transitionToEnd()
     }
 
     // Вернуть результат в MainActivity
