@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.view.View.MeasureSpec.EXACTLY
 import android.widget.GridLayout
 import android.widget.ImageView
 import com.google.android.material.card.MaterialCardView
+import org.jetbrains.anko.configuration
 import s.yarlykov.minipaint.R
 import s.yarlykov.minipaint.model.Color
 import s.yarlykov.minipaint.model.getColorInt
@@ -42,11 +44,11 @@ class ColorPickerView : GridLayout {
      * Вызывается при клике на каждом элементе палитры. По очереди меняет
      * цвета фон/кисть.
      */
-    var onColorClickListener: (selectedColor: Color) -> Unit = { color ->
+    var onColorClickListener: (color : Int) -> Unit = { color ->
         if (isBackgroundSelected) {
-            setPreviewColors(color.getColorInt(context) to 0)
+            setPreviewColors(color to 0)
         } else {
-            setPreviewColors(0 to color.getColorInt(context))
+            setPreviewColors(0 to color)
         }
         isBackgroundSelected = !isBackgroundSelected
     }
@@ -58,29 +60,39 @@ class ColorPickerView : GridLayout {
         attrs,
         defStyleAttr
     ) {
+        // По какой оси "нумеровать" столбцы
         orientation = HORIZONTAL
-        columnCount = COLUMNS_PREF
+
+        // Массив цветов палитры
+        val colors = context.resources.obtainTypedArray(R.array.palette_resources)
+        val count = colors.length()
+
+        // Для положения Landscape увеличиваем кол-во столбцов
+        columnCount =
+        if(context.configuration.orientation == ORIENTATION_PORTRAIT) {
+            COLUMNS_PREF
+        } else {
+            count / COLUMNS_PREF
+        }
 
         /**
          * Проход по всем цветам палитры. Вместо среднего элемента поместим в таблицу
          * choicePreview для отображения пользовательского выбора.
          */
-        val count = Color.values().size
 
-        Color.values().withIndex().forEach { item ->
+        (0 until count).forEach { index ->
 
             val view =
 
                 // Элемент палитры (ColorView)
-                if (item.index != count / 2) {
+                if (index != count / 2) {
 
                     ColorView(context).apply {
-                        fillColorRes = item.value.getColorRes()
-                        fillColorInt = item.value.getColorInt(context)
-                        tag = item.value
+                        fillColorInt = colors.getColor(index, 0)
+                        tag = fillColorInt
                         setOnClickListener {view ->
                             animate(view)
-                            onColorClickListener(view.tag as Color)
+                            onColorClickListener(fillColorInt)
                         }
                     }
                 } else {
@@ -100,6 +112,8 @@ class ColorPickerView : GridLayout {
 
             addView(view)
         }
+
+        colors.recycle()
     }
 
     /**
@@ -109,11 +123,6 @@ class ColorPickerView : GridLayout {
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val pickerW = MeasureSpec.getSize(widthSpec)
         val pickerH = MeasureSpec.getSize(heightSpec)
-
-        // Для положения Landscape увеличиваем кол-во столбцов
-        if (pickerW > pickerH) {
-            columnCount = childCount / COLUMNS_PREF
-        }
 
         // Предпочтительные размеры для ребенка
         val childPrefW = pickerW / columnCount
