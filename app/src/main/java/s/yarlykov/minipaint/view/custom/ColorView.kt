@@ -10,6 +10,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.minipaint.R
+import kotlin.math.min
 
 /**
  * Отдельный цветовой элемент в палитре.
@@ -21,6 +22,8 @@ class ColorView
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    private var radius : Float = 0f
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -58,8 +61,14 @@ class ColorView
         setMeasuredDimension(w, h)
     }
 
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+        radius = (min(width, height) / 2.0 * 0.8).toFloat()
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(fillColorInt)
+
+//        canvas.drawColor(fillColorInt)
+        canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, fillPaint)
     }
 }
