@@ -81,11 +81,10 @@ class ColorPickerView : GridLayout {
          */
 
         (0 until count).forEach { index ->
-
             val view =
 
                 // Элемент палитры (ColorView)
-                if (index != count / 2) {
+                if (index != count / 2 ) {
 
                     ColorView(context).apply {
                         fillColorInt = colors.getColor(index, 0)
@@ -109,7 +108,6 @@ class ColorPickerView : GridLayout {
                             choicePreview = this
                         }
                 }
-
             addView(view)
         }
 
@@ -132,12 +130,23 @@ class ColorPickerView : GridLayout {
             val v = getChildAt(i)
 
             if (v is ColorView) {
-                childMeasure(v, childPrefW, childPrefH, EXACTLY)
+                childMeasure(v,
+                    childPrefW,
+                    childPrefH,
+                    MeasureSpec.getMode(widthSpec),
+                    MeasureSpec.getMode(heightSpec))
             } else {
-                childMeasure(v, childPrefW - childPrefW / 6, childPrefH - childPrefH / 6, AT_MOST)
+                childMeasure(v,
+                    childPrefW - childPrefW/4,
+                    childPrefH - childPrefH/4,
+                    AT_MOST, AT_MOST)
             }
         }
         setMeasuredDimension(MeasureSpec.getSize(widthSpec), MeasureSpec.getSize(heightSpec))
+
+        // После определения размеров требуется принудительно выполнить layout, иначе
+        // все дочерние элементы (ColorView) позиционируются неверно.
+        requestLayout()
     }
 
     // Анимация масштабированием (уменьшение размера и восстановление)
@@ -153,9 +162,9 @@ class ColorPickerView : GridLayout {
     }
 
     // Вызвать measure у дочернего элемента
-    private fun childMeasure(child: View, w: Int, h: Int, mode: Int) {
-        val childSpecWidth = MeasureSpec.makeMeasureSpec(w, mode)
-        val childSpecHeight = MeasureSpec.makeMeasureSpec(h, mode)
+    private fun childMeasure(child: View, w: Int, h: Int, modeW: Int, modeH : Int) {
+        val childSpecWidth = MeasureSpec.makeMeasureSpec(w, modeW)
+        val childSpecHeight = MeasureSpec.makeMeasureSpec(h, modeH)
         child.measure(childSpecWidth, childSpecHeight)
     }
 
