@@ -52,13 +52,22 @@ class ColorView
         isClickable = true
     }
 
+    var minW : Int = Int.MAX_VALUE
+    var minH : Int = Int.MAX_VALUE
+
     /**
      * Просто принимаем предлженные размеры
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)
-        setMeasuredDimension(w, h)
+
+        if(w < minW) minW = w
+        if(h < minH) minH = h
+        
+        System.out.println("APP_TAG Child w.h $w,$h, spec=${MeasureSpec.toString(heightMeasureSpec)}")
+
+        setMeasuredDimension(minW, minH)
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
@@ -68,7 +77,7 @@ class ColorView
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-//        canvas.drawColor(fillColorInt)
-        canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, fillPaint)
+        canvas.drawColor(fillColorInt)
+//        canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, fillPaint)
     }
 }
