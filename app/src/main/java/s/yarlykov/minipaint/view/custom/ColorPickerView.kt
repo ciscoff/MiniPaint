@@ -116,7 +116,7 @@ class ColorPickerView : GridLayout {
 
     /**
      * В портретной ориентации таблица размерности AxB
-     * В алаьбомной - BxA
+     * В альбомной - BxA
      */
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val pickerW = MeasureSpec.getSize(widthSpec)

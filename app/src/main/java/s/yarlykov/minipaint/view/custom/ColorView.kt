@@ -10,6 +10,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.minipaint.R
+import s.yarlykov.minipaint.logIt
 import kotlin.math.min
 
 /**
@@ -56,18 +57,20 @@ class ColorView
     var minH : Int = Int.MAX_VALUE
 
     /**
-     * Просто принимаем предлженные размеры
+     * Просто принимаем предложенные размеры
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         val h = MeasureSpec.getSize(heightMeasureSpec)
 
-        if(w < minW) minW = w
-        if(h < minH) minH = h
+//        if(w < minW) minW = w
+//        if(h < minH) minH = h
         
-        System.out.println("APP_TAG Child w.h $w,$h, spec=${MeasureSpec.toString(heightMeasureSpec)}")
+        logIt("ColorView w.h $w,$h, spec=${MeasureSpec.toString(heightMeasureSpec)}")
 
-        setMeasuredDimension(minW, minH)
+//        setMeasuredDimension(minW, minH)
+        setMeasuredDimension(w, h)
+
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
@@ -77,7 +80,7 @@ class ColorView
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        canvas.drawColor(fillColorInt)
-//        canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, fillPaint)
+//        canvas.drawColor(fillColorInt)
+        canvas.drawCircle((width / 2).toFloat(), (height / 2).toFloat(), radius, fillPaint)
     }
 }

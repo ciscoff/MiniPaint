@@ -9,24 +9,18 @@ import java.lang.Integer.MAX_VALUE
 
 class ColorPickerRv : RecyclerView {
 
-    private var columnCount: Int = 1
-    private var rowCount: Int = 1
-
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
-    ) {
+    )
 
-    }
+    private var columnCount: Int = 1
+    private var rowCount: Int = 1
 
-    override fun canScrollVertically(direction: Int): Boolean {
-        return false
-    }
-
-    fun setDimensions(rows: Int, cols: Int) {
+    fun setGrid(rows: Int, cols: Int) {
         columnCount = cols
         rowCount = rows
     }
@@ -39,13 +33,9 @@ class ColorPickerRv : RecyclerView {
         val pickerW = MeasureSpec.getSize(widthSpec)
         val pickerH = MeasureSpec.getSize(heightSpec)
 
-        System.out.println("APP_TAG w.h $pickerW,$pickerH")
-
         // Предпочтительные размеры для ребенка
         val childPrefW = pickerW / columnCount
         val childPrefH = pickerH / rowCount
-
-//        System.out.println("APP_TAG c.r $columnCount,$rowCount")
 
         (0 until childCount).forEach { i ->
             val v = getChildAt(i)

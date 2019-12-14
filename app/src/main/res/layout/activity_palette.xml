@@ -8,51 +8,53 @@
     android:layout_height="match_parent"
     tools:context=".view.PaletteActivity">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardChoicePreview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:visibility="visible"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true"
-        android:layout_margin="12dp"
-        app:layout_constraintBottom_toBottomOf="@id/line_1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        card_view:cardBackgroundColor="@color/colorBackground"
-        card_view:cardCornerRadius="4dp">
+<!--    <com.google.android.material.card.MaterialCardView-->
+<!--        android:id="@+id/cardChoicePreview"-->
+<!--        android:layout_width="256dp"-->
+<!--        android:layout_height="128dp"-->
+<!--        android:fitsSystemWindows="true"-->
+<!--        android:visibility="visible"-->
+<!--        app:cardElevation="4dp"-->
+<!--        app:cardUseCompatPadding="true"-->
+<!--        android:layout_margin="8dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/line_1"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        card_view:cardBackgroundColor="@color/colorBackground"-->
+<!--        card_view:cardCornerRadius="6dp">-->
 
-        <ImageView
-            android:id="@+id/ivChoicePreview"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
-            android:layout_margin="4dp"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_brush"
-            android:tint="@color/amber" />
-    </com.google.android.material.card.MaterialCardView>
+<!--        <ImageView-->
+<!--            android:id="@+id/ivChoicePreview"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_margin="4dp"-->
+<!--            android:contentDescription="@string/app_name"-->
+<!--            android:src="@drawable/ic_cow"-->
+<!--            android:tint="@color/amber" />-->
+<!--    </com.google.android.material.card.MaterialCardView>-->
 
-    <View
-        android:id="@+id/line_1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@id/recyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardChoicePreview"/>
+<!--    <View-->
+<!--        android:id="@+id/line_1"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="1dp"-->
+<!--        android:background="@android:color/transparent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/recyclerView"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/cardChoicePreview"/>-->
 
     <s.yarlykov.minipaint.view.custom.ColorPickerRv
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="12dp"
+        android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="@id/line_2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/line_1"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_weight="1" />
 
     <View

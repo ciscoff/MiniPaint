@@ -7,8 +7,11 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -16,7 +19,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.activity_palette.*
-import kotlinx.android.synthetic.main.content_palette.*
 import kotlinx.android.synthetic.main.content_palette.buttonCancel
 import kotlinx.android.synthetic.main.content_palette.buttonOk
 import org.jetbrains.anko.configuration
@@ -31,9 +33,10 @@ class PaletteActivity : AppCompatActivity() {
      * Цвета фона и кисти, выбранные пользователем
      */
     private var chosenBackground: Int = 0
-        private set
     private var chosenForeground: Int = 0
-        private set
+
+    private lateinit var choicePreview: View
+
 
     /**
      * @isBackgroundSelected - флаг. Цвета фона и кисти выбираются по очереди.
@@ -66,7 +69,7 @@ class PaletteActivity : AppCompatActivity() {
     private fun initViews() {
 
         with(intent) {
-            val bg = getIntExtra(
+            chosenBackground = getIntExtra(
                 getString(R.string.key_bg),
                 ResourcesCompat.getColor(
                     resources,
@@ -74,11 +77,11 @@ class PaletteActivity : AppCompatActivity() {
                 )
             )
 
-            val fg = getIntExtra(
+            chosenForeground = getIntExtra(
                 getString(R.string.key_fg),
                 ResourcesCompat.getColor(resources, R.color.colorPaint, null)
             )
-            setPreviewColors(bg to fg)
+//            setPreviewColors(bg to fg)
         }
 
         // Cancel - закрыть активити
@@ -97,16 +100,6 @@ class PaletteActivity : AppCompatActivity() {
                 finish()
             }
         }
-    }
-
-    // Вернуть результат в MainActivity
-    private fun sendResult() {
-        setResult(Activity.RESULT_OK,
-            Intent().apply {
-                putExtra(getString(R.string.key_bg), chosenBackground)
-                putExtra(getString(R.string.key_fg), chosenForeground)
-            }
-        )
     }
 
     private fun initRecyclerView() {
@@ -133,8 +126,7 @@ class PaletteActivity : AppCompatActivity() {
         val rows = colorsQty / columns
 
         with(recyclerView) {
-//            setNestedScrollingEnabled(false)
-            setDimensions(rows, columns)
+            setGrid(rows, columns)
             addItemDecoration(GridItemDecoration(rows, columns))
             layoutManager = GridLayoutManager(this@PaletteActivity, columns)
             adapter = Adapter(rows, columns, colorArray)
@@ -146,12 +138,12 @@ class PaletteActivity : AppCompatActivity() {
 
         if (colors.first != 0) {
             chosenBackground = colors.first
-            (cardChoicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
+            (choicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
         }
 
         if (colors.second != 0) {
             chosenForeground = colors.second
-            ivChoicePreview.findViewById<ImageView>(R.id.ivChoicePreview)
+            choicePreview.findViewById<ImageView>(R.id.ivPreview)
                 .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
         }
     }
@@ -169,18 +161,59 @@ class PaletteActivity : AppCompatActivity() {
         animator.start()
     }
 
+    // Вернуть результат в MainActivity
+    private fun sendResult() {
+        setResult(Activity.RESULT_OK,
+            Intent().apply {
+                putExtra(getString(R.string.key_bg), chosenBackground)
+                putExtra(getString(R.string.key_fg), chosenForeground)
+            }
+        )
+    }
+
+    enum class ItemType {
+        COLOR,
+        PREVIEW
+    }
+
     /**
      *
      */
     inner class Adapter(private val rows: Int, private val columns: Int, val colors: List<Int>) :
         RecyclerView.Adapter<Adapter.ViewHolder>() {
 
+        // Назначить типы элементам
+        override fun getItemViewType(position: Int): Int {
+            return if(position == columns / 2) {
+                ItemType.PREVIEW.ordinal
+            } else {
+                ItemType.COLOR.ordinal
+            }
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            return ViewHolder(ColorView(this@PaletteActivity).apply {
-                setOnClickListener {
-                    this@PaletteActivity.animate(this)
+
+            return when(ItemType.values()[viewType]) {
+                ItemType.COLOR -> {
+                    ViewHolder(ColorView(this@PaletteActivity).apply {
+                        setOnClickListener {
+                            this@PaletteActivity.animate(this)
+                        }
+                        tag = ItemType.COLOR
+                    })
                 }
-            })
+                ItemType.PREVIEW -> {
+                    this@PaletteActivity.choicePreview = LayoutInflater
+                        .from(this@PaletteActivity)
+                        .inflate(R.layout.layout_preview_element, parent, false).apply {
+                            tag = ItemType.PREVIEW
+                        }
+
+                    ViewHolder(
+                        this@PaletteActivity.choicePreview
+                    )
+                }
+            }
         }
 
         override fun getItemCount(): Int {
@@ -190,8 +223,10 @@ class PaletteActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
             with(holder.itemView) {
-                (this as ColorView).fillColorInt = colors[position]
-                this.tag = colors[position]
+                if(tag == ItemType.COLOR) {
+                    (this as ColorView).fillColorInt = colors[position]
+                    this.tag = colors[position]
+                }
             }
         }
 
