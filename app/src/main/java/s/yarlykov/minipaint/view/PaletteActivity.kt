@@ -102,7 +102,7 @@ class PaletteActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
 
-        // Массив идентификаторов ресурсов цветов палитры
+        // Массив идентификаторов ресурсов цветов палитры и количество цветов
         val colors = resources.obtainTypedArray(R.array.palette_resources)
         val colorsQty = colors.length()
 
@@ -147,7 +147,7 @@ class PaletteActivity : AppCompatActivity() {
     }
 
     // Анимация масштабированием (уменьшение размера и восстановление)
-    private fun animate(view: View) {
+    private fun animateColorChoice(view: View) {
         val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0.8f)
         val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.8f)
         val animator = ObjectAnimator.ofPropertyValuesHolder(
@@ -177,12 +177,17 @@ class PaletteActivity : AppCompatActivity() {
     /**
      *
      */
-    inner class Adapter(private val rows: Int, private val columns: Int, val colors: List<Int>) :
+    inner class Adapter(
+        private val rows: Int,
+        private val columns: Int,
+        private val colors: List<Int>
+    ) :
         RecyclerView.Adapter<Adapter.ViewHolder>() {
 
         // Назначить типы элементам
         override fun getItemViewType(position: Int): Int {
-            return if(position == columns / 2) {
+//            return if(position == columns / 2) {
+            return if (position == rows * columns / 2) {
                 ItemType.PREVIEW.ordinal
             } else {
                 ItemType.COLOR.ordinal
@@ -191,11 +196,11 @@ class PaletteActivity : AppCompatActivity() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
-            return when(ItemType.values()[viewType]) {
+            return when (ItemType.values()[viewType]) {
                 ItemType.COLOR -> {
                     ViewHolder(ColorView(this@PaletteActivity).apply {
                         setOnClickListener {
-                            this@PaletteActivity.animate(this)
+                            this@PaletteActivity.animateColorChoice(this)
                         }
                         tag = ItemType.COLOR
                     })
@@ -221,9 +226,8 @@ class PaletteActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
             with(holder.itemView) {
-                if(tag == ItemType.COLOR) {
+                if (tag == ItemType.COLOR) {
                     (this as ColorView).fillColorInt = colors[position]
-                    this.tag = colors[position]
                 }
             }
         }
