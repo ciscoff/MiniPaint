@@ -7,11 +7,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
@@ -205,7 +203,7 @@ class PaletteActivity : AppCompatActivity() {
                 ItemType.PREVIEW -> {
                     this@PaletteActivity.choicePreview = LayoutInflater
                         .from(this@PaletteActivity)
-                        .inflate(R.layout.layout_preview_element, parent, false).apply {
+                        .inflate(R.layout.layout_preview, parent, false).apply {
                             tag = ItemType.PREVIEW
                         }
 

@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    android:id="@+id/cardPreview"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    android:visibility="visible"
-    android:layout_width="100dp"
-    android:layout_height="100dp"
-    android:layout_margin="4dp"
-    android:fitsSystemWindows="true"
-    android:layout_centerHorizontal="true"
-    android:layout_centerVertical="true"
-    app:cardElevation="4dp"
-    app:cardUseCompatPadding="true"
-    card_view:cardCornerRadius="50dp"
-    card_view:cardBackgroundColor="@color/colorBackground">
-
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
-        android:id="@+id/ivPreview"
-        android:layout_margin="12dp"
-        android:tint="@color/amber"
-        android:layout_gravity="center"
+        android:id="@+id/ivPreviewBg1"
+        android:tint="@color/colorBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_brush" />
-</com.google.android.material.card.MaterialCardView>
+        android:layout_margin="4dp"
+        android:src="@drawable/ic_paint_spot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <ImageView
+        android:id="@+id/ivPreviewFg1"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_paintbrush"
+        android:tint="@color/amber"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
