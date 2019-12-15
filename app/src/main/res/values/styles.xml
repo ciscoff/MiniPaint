@@ -20,6 +20,8 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
+<!--        <item name="android:windowActivityTransitions">true</item>-->
+<!--        <item name="android:windowExitTransition">@transition/fade_out_transition</item>-->
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

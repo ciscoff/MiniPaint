@@ -7,12 +7,12 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.transition.*
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.transition.*
 import kotlinx.android.synthetic.main.activity_palette.*
 import kotlinx.android.synthetic.main.content_palette.buttonCancel
 import kotlinx.android.synthetic.main.content_palette.buttonOk
@@ -60,6 +60,15 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         initControlViews()
 
         initRecyclerView()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+
+        // Переопределить анимацию закрытия окна актитиви
+        // https://developer.android.com/reference/android/app/Activity.html#overridePendingTransition(int,%20int)
+        overridePendingTransition(0, R.transition.fade_out_transition)
     }
 
     override fun onPreviewCreated(bgView: View, fgView: View) {
@@ -181,6 +190,8 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         animator.start()
     }
 
+    // Анимация кнопок (уход вправо, влево).
+    // Активити закрывается в animatorListener.
     private fun animateButtonsAndExit() {
 
         val set = AnimatorSet()
@@ -195,9 +206,10 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         set.addListener(animatorListener)
         set.duration = 300
         set.start()
-
     }
 
+    // Анимация шариков (explosion из центра)
+    // Активити закрывается из transitionListener
     private fun animateColorsAndExit(view: View) {
 
         val viewRect = Rect()
@@ -236,6 +248,7 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         finish()
     }
 
+    // Анимация шариков
     private val transitionListener = object : Transition.TransitionListener {
         override fun onTransitionEnd(transition: Transition) {
             sendResultAndFinish()
@@ -254,10 +267,11 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         }
     }
 
+    // Анимация кнопок
     private val animatorListener = object : AnimatorListenerAdapter() {
 
         override fun onAnimationEnd(animation: Animator?) {
-            this@PaletteActivity.onBackPressed()
+            this@PaletteActivity.finish()
         }
     }
 }
