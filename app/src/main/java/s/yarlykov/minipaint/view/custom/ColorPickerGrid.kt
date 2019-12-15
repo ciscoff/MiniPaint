@@ -2,7 +2,6 @@ package s.yarlykov.minipaint.view.custom
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.util.AttributeSet
@@ -10,15 +9,11 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.MeasureSpec.AT_MOST
-import android.view.View.MeasureSpec.EXACTLY
 import android.widget.GridLayout
 import android.widget.ImageView
 import com.google.android.material.card.MaterialCardView
 import org.jetbrains.anko.configuration
 import s.yarlykov.minipaint.R
-import s.yarlykov.minipaint.model.Color
-import s.yarlykov.minipaint.model.getColorInt
-import s.yarlykov.minipaint.model.getColorRes
 
 private const val COLUMNS_PREF = 3
 
@@ -98,7 +93,7 @@ class ColorPickerView : GridLayout {
                     // Центральный элемент - превью выбранных цветов (MaterialCard)
                     LayoutInflater
                         .from(context)
-                        .inflate(R.layout.layout_preview, this, false)
+                        .inflate(R.layout.layout_preview_old, this, false)
                         .apply {
                             (layoutParams as GridLayout.LayoutParams).apply {
                                 setGravity(Gravity.CENTER)
@@ -116,7 +111,7 @@ class ColorPickerView : GridLayout {
 
     /**
      * В портретной ориентации таблица размерности AxB
-     * В алаьбомной - BxA
+     * В альбомной - BxA
      */
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
         val pickerW = MeasureSpec.getSize(widthSpec)

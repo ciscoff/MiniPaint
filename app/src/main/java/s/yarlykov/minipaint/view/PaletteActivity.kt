@@ -1,24 +1,54 @@
 package s.yarlykov.minipaint.view
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import androidx.annotation.IdRes
+import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.content.res.ResourcesCompat
-import kotlinx.android.synthetic.main.content_palette.*
+import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.android.synthetic.main.activity_palette.*
+import kotlinx.android.synthetic.main.content_palette.buttonCancel
+import kotlinx.android.synthetic.main.content_palette.buttonOk
+import org.jetbrains.anko.configuration
 import s.yarlykov.minipaint.R
+import s.yarlykov.minipaint.view.custom.ColorAdapter
+import s.yarlykov.minipaint.view.custom.ColorView
+import s.yarlykov.minipaint.view.custom.GridItemDecoration
 
-class PaletteActivity : AppCompatActivity() {
+private const val COLUMNS_PREF = 3
+
+class PaletteActivity : AppCompatActivity(), ChoiceHandler {
+
+    /**
+     * Цвета фона и кисти, выбранные пользователем
+     */
+    private var chosenBackground: Int = 0
+    private var chosenForeground: Int = 0
+
+    /**
+     * Две ImageView. На одной отображается цвет фона на другой цвет кисти
+     */
+    private lateinit var viewBackground: ImageView
+    private lateinit var viewForeground: ImageView
+
+    /**
+     * @isBackgroundSelected - флаг. Цвета фона и кисти выбираются по очереди.
+     * Флаг показывает что было выбрано очередным кликом по ColorView.
+     */
+    private var isBackgroundSelected = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.content_palette)
+        setContentView(R.layout.activity_palette)
 
         // Заливка градиентом сверху вниз
-        paletteLayout.background = GradientDrawable(
+        paletteActivityLayout.background = GradientDrawable(
             GradientDrawable.Orientation.TOP_BOTTOM,
             intArrayOf(
                 ResourcesCompat.getColor(resources, R.color.colorPrimary, null),
@@ -26,17 +56,36 @@ class PaletteActivity : AppCompatActivity() {
             )
         )
 
-        initViews()
+        initControlViews()
+
+        initRecyclerView()
+    }
+
+    override fun onPreviewCreated(bgView: View, fgView: View) {
+        viewBackground = bgView as ImageView
+        viewForeground = fgView as ImageView
+    }
+
+    override fun onColorClicked(view: ColorView) {
+
+        animateColorChoice(view)
+
+        if (isBackgroundSelected) {
+            setPreviewColors(view.fillColorInt to 0)
+        } else {
+            setPreviewColors(0 to view.fillColorInt)
+        }
+        isBackgroundSelected = !isBackgroundSelected
     }
 
     /**
      * В интенте из MainActivity прилетают текущие цвета экрана рисования.
      * Их нужно передать в ColorPicker для отрисовки элемента preview.
      */
-    private fun initViews() {
+    private fun initControlViews() {
 
         with(intent) {
-            val bg = getIntExtra(
+            chosenBackground = getIntExtra(
                 getString(R.string.key_bg),
                 ResourcesCompat.getColor(
                     resources,
@@ -44,61 +93,96 @@ class PaletteActivity : AppCompatActivity() {
                 )
             )
 
-            val fg = getIntExtra(
+            chosenForeground = getIntExtra(
                 getString(R.string.key_fg),
                 ResourcesCompat.getColor(resources, R.color.colorPaint, null)
             )
-            colorPicker.setPreviewColors(bg to fg)
         }
 
         // Cancel - закрыть активити
         buttonCancel.setOnClickListener {
-            (paletteLayout as MotionLayout).transitionToStart()
+            onBackPressed()
         }
 
         // OK - проверить, что цвета валидные и вернуть результат в MainActivity.
         // Одинаковые цвета фона и кисти не разрешаются.
         buttonOk.setOnClickListener {
-            with(colorPicker) {
-
-                if ((chosenBackground and 0xFF000000.toInt()) != 0 &&
-                    (chosenForeground and 0xFF000000.toInt()) != 0 &&
-                    (chosenBackground != chosenForeground)
-                ) {
-                    sendResult()
-                    finish()
-                }
+            if ((chosenBackground and 0xFF000000.toInt()) != 0 &&
+                (chosenForeground and 0xFF000000.toInt()) != 0 &&
+                (chosenBackground != chosenForeground)
+            ) {
+                sendResult()
+                finish()
             }
         }
-
-        (paletteLayout as MotionLayout).setTransitionListener(
-            object : MotionLayout.TransitionListener {
-                override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
-                }
-                override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-                }
-                override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-                }
-                override fun onTransitionCompleted(p0: MotionLayout?, constraintSetId: Int) {
-                    if(constraintSetId == R.id.start) {
-                        this@PaletteActivity.finish()
-                    }
-                }
-            }
-        )
     }
 
-    override fun onResume() {
-        super.onResume()
-        (paletteLayout as MotionLayout).transitionToEnd()
+    private fun initRecyclerView() {
+
+        // Массив идентификаторов ресурсов цветов палитры и количество цветов
+        val colors = resources.obtainTypedArray(R.array.palette_resources)
+        val colorsQty = colors.length()
+
+        // Массив значений цветов
+        val colorArray = mutableListOf<Int>().apply {
+            (0 until colorsQty).forEach { index ->
+                this.add(colors.getColor(index, 0))
+            }
+        }
+        colors.recycle()
+
+        // Для положения Landscape увеличиваем кол-во столбцов
+        val columns =
+            if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                COLUMNS_PREF
+            } else {
+                colorsQty / COLUMNS_PREF
+            }
+        val rows = colorsQty / columns
+
+        with(recyclerView) {
+            setGrid(rows, columns)
+            addItemDecoration(GridItemDecoration(rows, columns))
+            layoutManager = GridLayoutManager(this@PaletteActivity, columns)
+            adapter = ColorAdapter(rows, columns, colorArray, this@PaletteActivity)
+        }
+    }
+
+    // Вызывается при необходимости обновить цвета в preview.
+    private fun setPreviewColors(colors: Pair<Int, Int>) {
+
+        if (colors.first != 0) {
+            chosenBackground = colors.first
+            viewBackground
+                .setColorFilter(chosenBackground, android.graphics.PorterDuff.Mode.SRC_IN)
+        }
+
+        if (colors.second != 0) {
+            chosenForeground = colors.second
+            viewForeground
+                .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
+        }
+    }
+
+    // Анимация масштабированием (уменьшение размера и восстановление)
+    private fun animateColorChoice(view: View) {
+        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0.8f)
+        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0.8f)
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
+            view, scaleX, scaleY
+        )
+        animator.repeatCount = 1
+        animator.duration = 100
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.start()
     }
 
     // Вернуть результат в MainActivity
     private fun sendResult() {
         setResult(Activity.RESULT_OK,
             Intent().apply {
-                putExtra(getString(R.string.key_bg), colorPicker.chosenBackground)
-                putExtra(getString(R.string.key_fg), colorPicker.chosenForeground)
+                putExtra(getString(R.string.key_bg), chosenBackground)
+                putExtra(getString(R.string.key_fg), chosenForeground)
             }
         )
     }
