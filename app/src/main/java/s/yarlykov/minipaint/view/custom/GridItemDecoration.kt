@@ -1,4 +1,4 @@
-package s.yarlykov.minipaint.view
+package s.yarlykov.minipaint.view.custom
 
 import android.graphics.Rect
 import android.view.View

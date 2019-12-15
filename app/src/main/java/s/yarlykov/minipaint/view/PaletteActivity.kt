@@ -7,25 +7,23 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.activity_palette.*
 import kotlinx.android.synthetic.main.content_palette.buttonCancel
 import kotlinx.android.synthetic.main.content_palette.buttonOk
 import org.jetbrains.anko.configuration
 import s.yarlykov.minipaint.R
+import s.yarlykov.minipaint.view.custom.ColorAdapter
 import s.yarlykov.minipaint.view.custom.ColorView
+import s.yarlykov.minipaint.view.custom.GridItemDecoration
 
 private const val COLUMNS_PREF = 3
 
-class PaletteActivity : AppCompatActivity() {
+class PaletteActivity : AppCompatActivity(), ChoiceHandler {
 
     /**
      * Цвета фона и кисти, выбранные пользователем
@@ -33,8 +31,11 @@ class PaletteActivity : AppCompatActivity() {
     private var chosenBackground: Int = 0
     private var chosenForeground: Int = 0
 
-    private lateinit var choicePreview: View
-
+    /**
+     * Две ImageView. На одной отображается цвет фона на другой цвет кисти
+     */
+    private lateinit var viewBackground: ImageView
+    private lateinit var viewForeground: ImageView
 
     /**
      * @isBackgroundSelected - флаг. Цвета фона и кисти выбираются по очереди.
@@ -55,16 +56,33 @@ class PaletteActivity : AppCompatActivity() {
             )
         )
 
-        initViews()
+        initControlViews()
 
         initRecyclerView()
+    }
+
+    override fun onPreviewCreated(bgView: View, fgView: View) {
+        viewBackground = bgView as ImageView
+        viewForeground = fgView as ImageView
+    }
+
+    override fun onColorClicked(view: ColorView) {
+
+        animateColorChoice(view)
+
+        if (isBackgroundSelected) {
+            setPreviewColors(view.fillColorInt to 0)
+        } else {
+            setPreviewColors(0 to view.fillColorInt)
+        }
+        isBackgroundSelected = !isBackgroundSelected
     }
 
     /**
      * В интенте из MainActivity прилетают текущие цвета экрана рисования.
      * Их нужно передать в ColorPicker для отрисовки элемента preview.
      */
-    private fun initViews() {
+    private fun initControlViews() {
 
         with(intent) {
             chosenBackground = getIntExtra(
@@ -79,7 +97,6 @@ class PaletteActivity : AppCompatActivity() {
                 getString(R.string.key_fg),
                 ResourcesCompat.getColor(resources, R.color.colorPaint, null)
             )
-//            setPreviewColors(bg to fg)
         }
 
         // Cancel - закрыть активити
@@ -127,7 +144,7 @@ class PaletteActivity : AppCompatActivity() {
             setGrid(rows, columns)
             addItemDecoration(GridItemDecoration(rows, columns))
             layoutManager = GridLayoutManager(this@PaletteActivity, columns)
-            adapter = Adapter(rows, columns, colorArray)
+            adapter = ColorAdapter(rows, columns, colorArray, this@PaletteActivity)
         }
     }
 
@@ -136,12 +153,13 @@ class PaletteActivity : AppCompatActivity() {
 
         if (colors.first != 0) {
             chosenBackground = colors.first
-            (choicePreview as MaterialCardView).setCardBackgroundColor(chosenBackground)
+            viewBackground
+                .setColorFilter(chosenBackground, android.graphics.PorterDuff.Mode.SRC_IN)
         }
 
         if (colors.second != 0) {
             chosenForeground = colors.second
-            choicePreview.findViewById<ImageView>(R.id.ivPreview)
+            viewForeground
                 .setColorFilter(chosenForeground, android.graphics.PorterDuff.Mode.SRC_IN)
         }
     }
@@ -167,71 +185,5 @@ class PaletteActivity : AppCompatActivity() {
                 putExtra(getString(R.string.key_fg), chosenForeground)
             }
         )
-    }
-
-    enum class ItemType {
-        COLOR,
-        PREVIEW
-    }
-
-    /**
-     *
-     */
-    inner class Adapter(
-        private val rows: Int,
-        private val columns: Int,
-        private val colors: List<Int>
-    ) :
-        RecyclerView.Adapter<Adapter.ViewHolder>() {
-
-        // Назначить типы элементам
-        override fun getItemViewType(position: Int): Int {
-//            return if(position == columns / 2) {
-            return if (position == rows * columns / 2) {
-                ItemType.PREVIEW.ordinal
-            } else {
-                ItemType.COLOR.ordinal
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-
-            return when (ItemType.values()[viewType]) {
-                ItemType.COLOR -> {
-                    ViewHolder(ColorView(this@PaletteActivity).apply {
-                        setOnClickListener {
-                            this@PaletteActivity.animateColorChoice(this)
-                        }
-                        tag = ItemType.COLOR
-                    })
-                }
-                ItemType.PREVIEW -> {
-                    this@PaletteActivity.choicePreview = LayoutInflater
-                        .from(this@PaletteActivity)
-                        .inflate(R.layout.layout_preview, parent, false).apply {
-                            tag = ItemType.PREVIEW
-                        }
-
-                    ViewHolder(
-                        this@PaletteActivity.choicePreview
-                    )
-                }
-            }
-        }
-
-        override fun getItemCount(): Int {
-            return columns * rows
-        }
-
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-            with(holder.itemView) {
-                if (tag == ItemType.COLOR) {
-                    (this as ColorView).fillColorInt = colors[position]
-                }
-            }
-        }
-
-        inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
     }
 }

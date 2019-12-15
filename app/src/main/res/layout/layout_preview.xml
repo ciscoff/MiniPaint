@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
-        android:id="@+id/ivPreviewBg1"
+        android:id="@+id/ivBackground"
         android:tint="@color/colorBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
     <ImageView
-        android:id="@+id/ivPreviewFg1"
+        android:id="@+id/ivForeground"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center"
