@@ -1,10 +1,10 @@
 package s.yarlykov.minipaint.view
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
+import android.animation.*
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
@@ -12,6 +12,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.transition.*
 import kotlinx.android.synthetic.main.activity_palette.*
 import kotlinx.android.synthetic.main.content_palette.buttonCancel
 import kotlinx.android.synthetic.main.content_palette.buttonOk
@@ -64,6 +65,10 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
     override fun onPreviewCreated(bgView: View, fgView: View) {
         viewBackground = bgView as ImageView
         viewForeground = fgView as ImageView
+
+        if (chosenBackground != 0 && chosenForeground != 0) {
+            setPreviewColors(chosenBackground to chosenForeground)
+        }
     }
 
     override fun onColorClicked(view: ColorView) {
@@ -101,7 +106,7 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
 
         // Cancel - закрыть активити
         buttonCancel.setOnClickListener {
-            onBackPressed()
+            animateButtonsAndExit()
         }
 
         // OK - проверить, что цвета валидные и вернуть результат в MainActivity.
@@ -111,8 +116,7 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
                 (chosenForeground and 0xFF000000.toInt()) != 0 &&
                 (chosenBackground != chosenForeground)
             ) {
-                sendResult()
-                finish()
+                animateColorsAndExit(viewBackground)
             }
         }
     }
@@ -177,13 +181,83 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
         animator.start()
     }
 
+    private fun animateButtonsAndExit() {
+
+        val set = AnimatorSet()
+        set.playTogether(
+            ObjectAnimator.ofFloat(buttonCancel, View.TRANSLATION_X, -500f).apply {
+                repeatCount = 0
+            },
+            ObjectAnimator.ofFloat(buttonOk, View.TRANSLATION_X, 500f).apply {
+                repeatCount = 0
+            }
+        )
+        set.addListener(animatorListener)
+        set.duration = 300
+        set.start()
+
+    }
+
+    private fun animateColorsAndExit(view: View) {
+
+        val viewRect = Rect()
+        view.getGlobalVisibleRect(viewRect)
+
+        val explodeTransition = Explode()
+
+        explodeTransition.epicenterCallback = object : Transition.EpicenterCallback() {
+            override fun onGetEpicenter(transition: Transition): Rect {
+                return viewRect
+            }
+        }
+
+        explodeTransition.excludeTarget(view, true)
+
+        val set = TransitionSet().apply {
+            addTransition(explodeTransition)
+            addTransition(Fade().addTarget(view))
+            addListener(transitionListener)
+        }
+
+        TransitionManager.beginDelayedTransition(recyclerView, set)
+
+        // Триггер начала анимации. Удаляем контент и все начинается
+        recyclerView.adapter = null
+    }
+
     // Вернуть результат в MainActivity
-    private fun sendResult() {
+    private fun sendResultAndFinish() {
         setResult(Activity.RESULT_OK,
             Intent().apply {
                 putExtra(getString(R.string.key_bg), chosenBackground)
                 putExtra(getString(R.string.key_fg), chosenForeground)
             }
         )
+        finish()
+    }
+
+    private val transitionListener = object : Transition.TransitionListener {
+        override fun onTransitionEnd(transition: Transition) {
+            sendResultAndFinish()
+        }
+
+        override fun onTransitionResume(transition: Transition) {
+        }
+
+        override fun onTransitionPause(transition: Transition) {
+        }
+
+        override fun onTransitionCancel(transition: Transition) {
+        }
+
+        override fun onTransitionStart(transition: Transition) {
+        }
+    }
+
+    private val animatorListener = object : AnimatorListenerAdapter() {
+
+        override fun onAnimationEnd(animation: Animator?) {
+            this@PaletteActivity.onBackPressed()
+        }
     }
 }
