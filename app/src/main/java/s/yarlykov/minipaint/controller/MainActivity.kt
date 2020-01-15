@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.transition.TransitionInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
@@ -31,7 +33,7 @@ class MainActivity : AppCompatActivity() {
      * @pathStack - Стэк (он же List) для истории нарисованных линий
      *
      */
-    lateinit var paintView: PaintView
+    private lateinit var paintView: PaintView
 
     private val disposable = CompositeDisposable()
     private val pathStack = PathStack()
