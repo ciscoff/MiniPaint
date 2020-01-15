@@ -65,10 +65,11 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
     override fun onPause() {
         super.onPause()
 
+        // Из-за оператора ниже Activity не закрывалась после finish()
 
         // Переопределить анимацию закрытия окна актитиви
         // https://developer.android.com/reference/android/app/Activity.html#overridePendingTransition(int,%20int)
-        overridePendingTransition(0, R.transition.fade_out_transition)
+//        overridePendingTransition(0, R.transition.fade_out_transition)
     }
 
     override fun onPreviewCreated(bgView: View, fgView: View) {
@@ -239,13 +240,14 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
 
     // Вернуть результат в MainActivity
     private fun sendResultAndFinish() {
-        setResult(Activity.RESULT_OK,
+
+        this@PaletteActivity.setResult(Activity.RESULT_OK,
             Intent().apply {
                 putExtra(getString(R.string.key_bg), chosenBackground)
                 putExtra(getString(R.string.key_fg), chosenForeground)
             }
         )
-        finish()
+        this@PaletteActivity.finish()
     }
 
     // Анимация шариков
@@ -269,7 +271,6 @@ class PaletteActivity : AppCompatActivity(), ChoiceHandler {
 
     // Анимация кнопок
     private val animatorListener = object : AnimatorListenerAdapter() {
-
         override fun onAnimationEnd(animation: Animator?) {
             this@PaletteActivity.finish()
         }
